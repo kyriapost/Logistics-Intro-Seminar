@@ -1,0 +1,69 @@
+{
+  "benchmark_full_horizon": true,
+  "window_dataset_scope": "configured_case",
+  "horizon_windows": [
+    {
+      "fraction": 0.1,
+      "positions": ["start", "middle", "end"]
+    },
+    {
+      "fraction": 0.2,
+      "positions": ["start", "middle", "end"]
+    },
+    {
+      "fraction": 0.5,
+      "positions": ["start", "middle", "end"]
+    },
+    {
+      "fraction": 0.75,
+      "positions": ["start", "middle", "end"]
+    },
+    {
+      "fraction": 1.0,
+      "positions": ["start"]
+    }
+  ],
+  "objective_tolerance": 1e-06,
+  "schedule_tolerance": 1e-06,
+  "lp_scenarios": [
+    {
+      "name": "baseline"
+    },
+    {
+      "name": "flat_prices",
+      "flatten_prices": true
+    },
+    {
+      "name": "high_price_spread",
+      "price_scale": 1.5
+    },
+    {
+      "name": "perfect_efficiency",
+      "charge_efficiency": 1.0,
+      "discharge_efficiency": 1.0
+    },
+    {
+      "name": "low_efficiency",
+      "charge_efficiency": 0.85,
+      "discharge_efficiency": 0.85
+    },
+    {
+      "name": "tight_power_limits",
+      "charge_power_limit_kw": 2.0,
+      "discharge_power_limit_kw": 2.0
+    },
+    {
+      "name": "loose_power_limits",
+      "charge_power_limit_kw": 8.0,
+      "discharge_power_limit_kw": 8.0
+    },
+    {
+      "name": "small_capacity",
+      "soc_max_kwh": 5.0
+    },
+    {
+      "name": "large_capacity",
+      "soc_max_kwh": 20.0
+    }
+  ]
+}

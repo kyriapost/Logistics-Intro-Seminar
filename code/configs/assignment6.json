@@ -1,0 +1,5 @@
+{
+  "dataset_scope": "configured_case",
+  "formulations": ["basic", "tighter"],
+  "degradation_cost_values": [0.0, 0.005, 0.01, 0.02, 0.03]
+}

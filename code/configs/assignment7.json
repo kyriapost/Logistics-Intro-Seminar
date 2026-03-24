@@ -1,0 +1,28 @@
+{
+  "dataset_scope": "configured_case",
+  "scenarios": [
+    {
+      "name": "extension_template_price_shift",
+      "description": "Template scenario for future assignment 7 experiments.",
+      "formulation": "tighter",
+      "window_fraction": 0.5,
+      "window_position": "middle",
+      "price_shift": 0.02,
+      "save_schedule": true,
+      "custom_parameters": {
+        "question": "replace this with your assignment 7 hypothesis",
+        "owner": "team"
+      }
+    },
+    {
+      "name": "extension_template_policy_mix",
+      "description": "Example of combining grid fees and degradation in one scenario.",
+      "formulation": "tighter",
+      "grid_fee_eur_per_kwh": 0.02,
+      "degradation_cost_eur_per_kwh_throughput": 0.01,
+      "custom_parameters": {
+        "policy_case": true
+      }
+    }
+  ]
+}

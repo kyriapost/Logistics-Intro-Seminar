@@ -1,0 +1,5 @@
+{
+  "dataset_scope": "configured_case",
+  "formulations": ["basic", "tighter"],
+  "grid_fee_values": [0.0, 0.01, 0.02, 0.03, 0.04, 0.05]
+}

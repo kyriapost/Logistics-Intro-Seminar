@@ -1,0 +1,25 @@
+{
+  "name": "case1_battery_optimization",
+  "data": {
+    "csv_path": "net_demand_and_price.csv",
+    "start_index": 0,
+    "periods": 168
+  },
+  "battery": {
+    "initial_soc_kwh": 5.0,
+    "soc_min_kwh": 0.0,
+    "soc_max_kwh": 10.0,
+    "charge_power_limit_kw": 5.0,
+    "discharge_power_limit_kw": 5.0,
+    "charge_efficiency": 0.95,
+    "discharge_efficiency": 0.95,
+    "grid_fee_eur_per_kwh": 0.0,
+    "degradation_cost_eur_per_kwh_throughput": 0.0
+  },
+  "solver": {
+    "time_limit_seconds": 120,
+    "mip_gap": 0.0,
+    "threads": 0,
+    "output_flag": 0
+  }
+}
