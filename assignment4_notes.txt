@@ -1,0 +1,20 @@
+general difference between basic \& tighter: smaller gap because of less feasible LP relaxation solutions
+
+base case: positive gap in basic formulation, smaller in tighter formulation - expected because of less feasible solutions\\
+
+flat prices: no arbitrage incentive. If there is no benefit from shifting energy over time, then the LP has little reason to exploit fractional battery operation. So LP and MIP coincide for both formulations.\\
+
+price spread scenario:  multiplying price series by 1.5 - arbitrage is more valuable and LP is more probable to exploit fractional solutions. gap is bigger (by exactly 1.5, by definition of objective function)\\
+
+perfect efficiency: charge \& discharge are not symmetric: with discharge efficiency 1/$\eta^{C}$, there is no gap - original asymmetry gives the LP extra room to exploit the relaxation in ways the real battery cannot\\
+
+low efficiency: Low efficiency increases losses, which changes the value of moving energy through the battery - fractional behavior can sometimes “game” these tradeoffs more easily than the true MIP\\
+
+tighter power limits: tighter charge/discharge power limits, the battery is less flexible each hour - limits how much the LP can exploit relaxed mode decisions\\
+
+loose power limits: a lot more freedom for LP to charge and discharge - basic formulation: LP can partially charge and discharge in even more ways that are not feasible for the real battery but improve objective value; tighter: kills the gap - looking at constraints, SOC bounds become much tighter, so freedom is "killed"
+\textbf{best empirical illustration of why formulation quality matters}\\
+
+smaller capacity: battery cannot shift much energy across time, arbitrage potential is limited: tighter formulation cuts off those fractional solutions - similar to loose power limits case (constraints intuition)\\
+
+larger capacity: with $S^{max}$ large enough...

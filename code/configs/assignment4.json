@@ -49,8 +49,8 @@
     },
     {
       "name": "tight_power_limits",
-      "charge_power_limit_kw": 2.0,
-      "discharge_power_limit_kw": 2.0
+      "charge_power_limit_kw": 0.5,
+      "discharge_power_limit_kw": 0.5
     },
     {
       "name": "loose_power_limits",
@@ -59,7 +59,7 @@
     },
     {
       "name": "small_capacity",
-      "soc_max_kwh": 5.0
+      "soc_max_kwh": 2.0
     },
     {
       "name": "large_capacity",
