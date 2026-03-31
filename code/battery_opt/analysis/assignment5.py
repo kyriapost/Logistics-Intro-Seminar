@@ -13,8 +13,13 @@ def run_assignment5_grid_fee_sweep(case_config: CaseConfig, assignment5_config: 
     base_data = load_analysis_data(case_config, assignment5_config.dataset_scope)
     records = []
 
+    total_hours = len(base_data)
+
     for formulation in assignment5_config.formulations:
         for grid_fee in assignment5_config.grid_fee_values:
+            hours_below_fee = int((base_data["price_eur_per_kwh"] < grid_fee).sum())
+            hours_below_fee_pct = hours_below_fee / total_hours * 100
+
             scenario = ScenarioOverrideConfig(grid_fee_eur_per_kwh=grid_fee)
             scenario_case, scenario_data = apply_scenario_overrides(case_config, base_data, scenario)
             result, error = safe_solve(scenario_case, formulation, prepared_data=scenario_data)
@@ -25,6 +30,8 @@ def run_assignment5_grid_fee_sweep(case_config: CaseConfig, assignment5_config: 
                         "grid_fee_eur_per_kwh": grid_fee,
                         "status": error,
                         "periods": len(scenario_data),
+                        "hours_below_fee": hours_below_fee,
+                        "hours_below_fee_pct": hours_below_fee_pct,
                     }
                 )
                 continue
@@ -46,6 +53,9 @@ def run_assignment5_grid_fee_sweep(case_config: CaseConfig, assignment5_config: 
                     "average_soc_utilization": result.summary["average_soc_utilization"],
                     "local_self_consumed_kwh": result.summary["local_self_consumed_kwh"],
                     "self_consumption_rate": result.summary["self_consumption_rate"],
+                    "fee_as_fraction_of_profit": ((grid_fee * result.summary["total_grid_exchange_kwh"]) / result.objective_value_eur if result.objective_value_eur and result.objective_value_eur > 0 else None),
+                    "hours_below_fee": hours_below_fee,
+                    "hours_below_fee_pct": hours_below_fee_pct,
                 }
             )
 
@@ -105,6 +115,12 @@ def run_assignment5_suite(
         "self_consumption_rate",
         "Self-Consumption Rate by Grid Fee",
         output_path / "assignment5_self_consumption_by_fee.png",
+    )
+    _plot_assignment5_metric(
+        results,
+        "hours_below_fee",
+        "Hours with Price Below Fee Threshold (Export Suppressed)",
+        output_path / "assignment5_hours_below_fee.png",
     )
 
     return {
