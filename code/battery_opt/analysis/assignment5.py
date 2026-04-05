@@ -3,10 +3,24 @@ from __future__ import annotations
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
 from ..config import Assignment5Config, CaseConfig, ScenarioOverrideConfig
 from .common import apply_scenario_overrides, load_analysis_data, safe_solve
+
+
+def _compute_no_battery_objective(data: pd.DataFrame, grid_fee: float) -> dict:
+    d = data["net_demand_kwh"].values
+    lam = data["price_eur_per_kwh"].values
+    passive_import = np.clip(d, 0, None)
+    passive_export = np.clip(-d, 0, None)
+    no_bat_obj = (-(lam + grid_fee) * passive_import + (lam - grid_fee) * passive_export).sum()
+    return {
+        "no_battery_objective_eur": no_bat_obj,
+        "passive_import_kwh": float(passive_import.sum()),
+        "passive_export_kwh": float(passive_export.sum()),
+    }
 
 
 def run_assignment5_grid_fee_sweep(case_config: CaseConfig, assignment5_config: Assignment5Config) -> pd.DataFrame:
@@ -22,6 +36,9 @@ def run_assignment5_grid_fee_sweep(case_config: CaseConfig, assignment5_config: 
 
             scenario = ScenarioOverrideConfig(grid_fee_eur_per_kwh=grid_fee)
             scenario_case, scenario_data = apply_scenario_overrides(case_config, base_data, scenario)
+
+            no_bat = _compute_no_battery_objective(scenario_data, grid_fee)
+
             result, error = safe_solve(scenario_case, formulation, prepared_data=scenario_data)
             if error is not None:
                 records.append(
@@ -32,9 +49,12 @@ def run_assignment5_grid_fee_sweep(case_config: CaseConfig, assignment5_config: 
                         "periods": len(scenario_data),
                         "hours_below_fee": hours_below_fee,
                         "hours_below_fee_pct": hours_below_fee_pct,
+                        **no_bat,
                     }
                 )
                 continue
+
+            battery_value_eur = result.objective_value_eur - no_bat["no_battery_objective_eur"]
 
             records.append(
                 {
@@ -43,6 +63,8 @@ def run_assignment5_grid_fee_sweep(case_config: CaseConfig, assignment5_config: 
                     "status": result.status_name,
                     "periods": len(scenario_data),
                     "objective_eur": result.objective_value_eur,
+                    **no_bat,
+                    "battery_value_eur": battery_value_eur,
                     "runtime_seconds": result.runtime_seconds,
                     "total_grid_fee_paid_eur": grid_fee * result.summary["total_grid_exchange_kwh"],
                     "total_grid_exchange_kwh": result.summary["total_grid_exchange_kwh"],
@@ -133,6 +155,18 @@ def run_assignment5_suite(
     )
     _plot_assignment5_metric(
         results,
+        "no_battery_objective_eur",
+        "No-Battery Objective by Grid Fee",
+        output_path / "assignment5_no_battery_objective_by_fee.png",
+    )
+    _plot_assignment5_metric(
+        results,
+        "battery_value_eur",
+        "Battery Value (Incremental Profit) by Grid Fee",
+        output_path / "assignment5_battery_value_by_fee.png",
+    )
+    _plot_assignment5_metric(
+        results,
         "equivalent_cycles",
         "Equivalent Full Cycles by Grid Fee",
         output_path / "assignment5_equivalent_cycles_by_fee.png",
@@ -163,16 +197,26 @@ def run_assignment5_suite(
     }
 
 
+_FORMULATION_STYLES: dict[str, dict] = {
+    "basic": {"marker": "o", "linestyle": "-", "linewidth": 2.0, "markersize": 8, "color": "#1f77b4"},
+    "tighter": {"marker": "s", "linestyle": "--", "linewidth": 2.0, "markersize": 7, "color": "#d62728"},
+}
+
+
 def _plot_assignment5_metric(results: pd.DataFrame, metric: str, title: str, output_path: Path) -> None:
     valid = results[(results["status"] == "OPTIMAL") & results[metric].notna()].copy()
     if valid.empty:
         return
     pivot = valid.pivot(index="grid_fee_eur_per_kwh", columns="formulation", values=metric)
-    ax = pivot.plot(marker="o", figsize=(8, 4))
+    fig, ax = plt.subplots(figsize=(8, 4))
+    for col in pivot.columns:
+        style = _FORMULATION_STYLES.get(col, {"marker": "^", "linestyle": "-.", "linewidth": 2.0, "markersize": 7})
+        ax.plot(pivot.index, pivot[col], label=col, **style)
     ax.set_title(title)
     ax.set_xlabel("Grid fee (EUR/kWh)")
     ax.set_ylabel(metric)
+    ax.legend()
     ax.grid(True, alpha=0.3)
-    ax.figure.tight_layout()
-    ax.figure.savefig(output_path, dpi=150)
-    plt.close(ax.figure)
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=150)
+    plt.close(fig)
