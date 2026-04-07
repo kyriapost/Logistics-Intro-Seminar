@@ -226,7 +226,6 @@ def _plot_assignment5_metric(results: pd.DataFrame, metric: str, title: str, out
     if valid.empty:
         return
     pivot = valid.pivot(index="grid_fee_eur_per_kwh", columns="formulation", values=metric)
-<<<<<<< Updated upstream
     fig, ax = plt.subplots(figsize=(8, 4))
     for col in pivot.columns:
         style = _FORMULATION_STYLES.get(col, {"marker": "^", "linestyle": "-.", "linewidth": 2.0, "markersize": 7})
@@ -236,7 +235,6 @@ def _plot_assignment5_metric(results: pd.DataFrame, metric: str, title: str, out
     ax.set_ylabel(metric)
     ax.legend()
     ax.grid(True, alpha=0.3)
-=======
 
     has_diff_panel = "basic" in pivot.columns and "tighter" in pivot.columns
     if has_diff_panel:
@@ -270,8 +268,6 @@ def _plot_assignment5_metric(results: pd.DataFrame, metric: str, title: str, out
         if diff.abs().max() < 1e-6:
             ax_bot.set_title("Formulations produce identical values", fontsize=8)
         ax_bot.set_xlabel("Grid fee (EUR/kWh)")
-
->>>>>>> Stashed changes
     fig.tight_layout()
     fig.savefig(output_path, dpi=150)
     plt.close(fig)
